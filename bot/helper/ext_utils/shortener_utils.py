@@ -82,19 +82,54 @@ async def short_url(longurl, attempt=0):
             result = response.json()["url"]["shortLink"]
             
         elif "vplink" in _shortener:
+            # Correct VPLink API endpoint
             response = cget(
                 "GET", 
-                f"https://vplink.in/st?api={_shortener_api}&url={quote(longurl)}"
+                f"https://vplink.in/api?api={_shortener_api}&url={quote(longurl)}"
             )
             LOGGER.info(f"📝 VPLink response: {response.text}")
-            result = response.text.strip()
+            json_resp = response.json()
+            
+            if json_resp.get("status") == "success":
+                result = json_resp["shortenedUrl"]
+            else:
+                LOGGER.error(f"❌ VPLink API error: {json_resp.get('message', 'Unknown error')}")
+                result = longurl
             
         elif "linkshortify" in _shortener:
+            # Try correct LinkShortify API endpoint
             response = cget(
                 "GET",
-                f"https://linkshortify.com/st?api={_shortener_api}&url={quote(longurl)}"
+                f"https://linkshortify.com/api?api={_shortener_api}&url={quote(longurl)}"
             )
             LOGGER.info(f"📝 LinkShortify response: {response.text}")
+            
+            try:
+                json_resp = response.json()
+                if json_resp.get("status") == "success":
+                    result = json_resp["shortenedUrl"]
+                else:
+                    LOGGER.error(f"❌ LinkShortify API error: {json_resp.get('message', 'Unknown error')}")
+                    result = longurl
+            except:
+                # If not JSON, might be direct text response
+                text_resp = response.text.strip()
+                if text_resp.startswith("http"):
+                    result = text_resp
+                else:
+                    LOGGER.error(f"❌ LinkShortify unexpected response: {text_resp[:100]}...")
+                    result = longurl
+            
+        elif "is.gd" in _shortener:
+            response = cget(
+                "GET", f"https://is.gd/create.php?format=simple&url={quote(longurl)}"
+            )
+            result = response.text.strip()
+            
+        elif "tinyurl.com" in _shortener:
+            response = cget(
+                "GET", f"https://tinyurl.com/api-create.php?url={quote(longurl)}"
+            )
             result = response.text.strip()
             
         else:
@@ -105,7 +140,7 @@ async def short_url(longurl, attempt=0):
             )
             LOGGER.info(f"📝 Generic shortener response: {response.text}")
             res = response.json()
-            result = res["shortenedUrl"]
+            result = res.get("shortenedUrl", "")
             if not result:
                 shrtco_res = cget(
                     "GET", f"https://api.shrtco.de/v2/shorten?url={quote(longurl)}"
@@ -115,7 +150,7 @@ async def short_url(longurl, attempt=0):
                     "GET",
                     f"https://{_shortener}/api?api={_shortener_api}&url={shrtco_link}",
                 ).json()
-                result = res["shortenedUrl"]
+                result = res.get("shortenedUrl", "")
             if not result:
                 result = longurl
 
@@ -127,12 +162,12 @@ async def short_url(longurl, attempt=0):
             return longurl
             
         if not is_valid_url(result):
-            LOGGER.error(f"❌ Invalid URL returned: {result}")
+            LOGGER.error(f"❌ Invalid URL returned: {result[:100]}...")
             return longurl
             
         # Additional checks for common error responses
-        if any(error in result.lower() for error in ['error', 'invalid', 'failed', 'not found']):
-            LOGGER.error(f"❌ Error response from shortener: {result}")
+        if any(error in result.lower() for error in ['error', 'invalid', 'failed', 'not found', 'html', 'doctype']):
+            LOGGER.error(f"❌ Error response from shortener: {result[:100]}...")
             return longurl
             
         LOGGER.info(f"✅ Successfully shortened: {longurl} -> {result}")
