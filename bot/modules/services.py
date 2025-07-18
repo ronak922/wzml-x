@@ -94,7 +94,7 @@ async def start(_, message):
                     await database.update_user_data(userid)
                 
                 # Send success message
-                success_msg = f"""✅ <b>Access Token Activated Successfully!</b>
+                success_msg = f"""✅ <b>Aᴄᴄᴇss Tᴏᴋᴇɴ Aᴄᴛɪᴠᴀᴛᴇᴅ Sᴜᴄᴄᴇssғᴜʟʟʏ..!</b>
 
 ┊ <b>User ID:</b> <code>{userid}</code>
 ┊ <b>Status:</b> <code>Verified ✓</code>

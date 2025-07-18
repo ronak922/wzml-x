@@ -111,10 +111,10 @@ async def verify_token(user_id, button=None):
         original_url = f"https://t.me/{TgClient.BNAME}?start={encrypt_url}"
         verification_link = await short_url(original_url)
         
-        button.url_button("🔐 Verify Access Token", verification_link)
+        button.url_button("Vᴇʀɪғʏ Tᴏᴋᴇɴ", verification_link)
         
         return (
-            f"┊ <i>Verify Access Token has been expired,</i> Kindly validate a new access token to start using bot again.\n┃\n╰ <b>Validity :</b> <code>{get_readable_time(Config.VERIFY_TIMEOUT)}</code>\n\n🔗 <b>Verification Link:</b> <code>{verification_link}</code>",
+            f"<b>Yᴏᴜʀ Vᴇʀɪғɪᴄᴀᴛɪᴏɴ Tᴏᴋᴇɴ Hᴀs Bᴇᴇɴ Exᴘɪʀᴇᴅ.\n\n Vᴇʀɪғʏ Lɪɴᴋ Tᴏ Lᴇᴇᴄʜ Cᴏɴᴛᴇɴᴛ</b>",
             button,
         )
     return None, button
