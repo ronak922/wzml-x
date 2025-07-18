@@ -85,6 +85,9 @@ async def start(_, message):
             
             # Generate shortened verification link
             verification_link = await short_url(original_url)
+
+            if not verification_link or verification_link == original_url:
+                verification_link = original_url
             
             LOGGER.info(f"🔍 DEBUG - Shortened URL: {verification_link}")
             LOGGER.info(f"🔍 DEBUG - URL changed: {verification_link != original_url}")
