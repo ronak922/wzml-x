@@ -31,8 +31,8 @@ async def start(_, message):
     userid = message.from_user.id
     lang = Language()
     buttons = ButtonMaker()
-    buttons.url_button(lang.START_BUTTON1, "https://t.me/DownloaderZoneGateway")
-    buttons.url_button(lang.START_BUTTON2, "https://t.me/DOWNLOADERZONEUPDATES")
+    buttons.url_button(lang.START_BUTTON1, "https://t.me/mrjhaplu")
+    buttons.url_button(lang.START_BUTTON2, "https://t.me/mrjhaplu")
     reply_markup = buttons.build_menu(2)
 
     if len(message.command) > 1 and message.command[1] == "beast":

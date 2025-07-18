@@ -50,7 +50,18 @@ async def short_url(longurl, attempt=0):
                 "GET",
                 f"http://cutt.ly/api/api.php?key={_shortener_api}&short={longurl}",
             ).json()["url"]["shortLink"]
+        elif "vplink" in _shortener:
+            return cget(
+                "GET", 
+                f"https://vplink.in/st?api={_shortener_api}&url={quote(longurl)}"
+            ).text.strip()
+        elif "linkshortify" in _shortener:
+            return cget(
+                "GET",
+                f"https://linkshortify.com/st?api={_shortener_api}&url={quote(longurl)}"
+            ).text.strip()
         else:
+            # Generic shortener code remains the same
             res = cget(
                 "GET",
                 f"https://{_shortener}/api?api={_shortener_api}&url={quote(longurl)}",

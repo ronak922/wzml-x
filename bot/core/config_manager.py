@@ -12,8 +12,8 @@ class Config:
     BOT_MAX_TASKS = 0
     BOT_PM = False
     CMD_SUFFIX = ""
-    CUSTOM_BOT_HEADER = "Downloader Zone"
-    CUSTOM_BOT_HEADER_LINK = "https://t.me/DownloaderZoneGateway"
+    CUSTOM_BOT_HEADER = "@𝐌ʀ𝐉ʜᴀᴘʟᴜ 𝐓ᴇʟᴇɢʀᴀᴍ"
+    CUSTOM_BOT_HEADER_LINK = "https://t.me/mrjhaplu"
     DEFAULT_LANG = "en"
     DATABASE_URL = ""
     DEFAULT_UPLOAD = "rc"
@@ -31,9 +31,9 @@ class Config:
     MEDIA_STORE = True
     FORCE_SUB_IDS = ""
     GDRIVE_ID = ""
-    GD_DESP = "Uploaded by Dzone"
-    AUTHOR_NAME = "Dzone"
-    AUTHOR_URL = "https://t.me/DownloaderZoneGateway"
+    GD_DESP = "Uploaded by 𝐌ʀ𝐉ʜᴀᴘʟᴜ"
+    AUTHOR_NAME = "𝐌ʀ𝐉ʜᴀᴘʟᴜ"
+    AUTHOR_URL = "https://t.me/mrjhaplu"
     DEBRID_LINK_API = ""
     INSTADL_API = ""
     IMDB_TEMPLATE = ""
@@ -100,7 +100,7 @@ class Config:
     TELEGRAM_HASH = ""
     TG_PROXY = None
     THUMBNAIL_LAYOUT = ""
-    VERIFY_TIMEOUT = 0
+    VERIFY_TIMEOUT = 21600
     LOGIN_PASS = ""
     TORRENT_TIMEOUT = 0
     TIMEZONE = "Asia/Kolkata"
