@@ -95,6 +95,56 @@ jd_listener_lock = Lock()
 cpu_eater_lock = Lock()
 same_directory_lock = Lock()
 
+def load_shorteners_from_file():
+    """Load shorteners from shortener.txt file"""
+    try:
+        with open("shortener.txt", "r") as f:
+            content = f.read().strip()
+            
+        if not content:
+            LOGGER.warning("shortener.txt is empty")
+            return
+            
+        LOGGER.info("📄 Loading shorteners from shortener.txt...")
+        
+        # Your current format: vplink.in8fa658d2aed43901d0fbd8ce7868dc73ddd01820
+        shortener_configs = {
+            "vplink.in": "",
+            "linkshortify.com": "",
+            "ouo.io": "",
+            "bitly.com": "",
+            "cutt.ly": "",
+            "shorte.st": ""
+        }
+        
+        lines = content.split('\n')
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+                
+            # Check each known domain
+            for domain in shortener_configs.keys():
+                if domain in line:
+                    api_key = line.replace(domain, "").strip()
+                    if api_key:
+                        shortener_dict[domain] = api_key
+                        LOGGER.info(f"✅ Loaded shortener: {domain}")
+                    break
+                        
+    except FileNotFoundError:
+        LOGGER.warning("❌ shortener.txt file not found")
+    except Exception as e:
+        LOGGER.error(f"❌ Error loading shorteners: {e}")
+
+# Load shorteners from file
+load_shorteners_from_file()
+LOGGER.info(f"📋 Total shorteners loaded: {len(shortener_dict)}")
+if shortener_dict:
+    LOGGER.info(f"🔗 Available shorteners: {list(shortener_dict.keys())}")
+else:
+    LOGGER.warning("⚠️ No shorteners configured! Verification links will be direct.")
+
 sabnzbd_client = SabnzbdClient(
     host="http://localhost",
     api_key="admin",
