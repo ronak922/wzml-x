@@ -221,7 +221,7 @@ async def get_readable_message(sid, is_user, page_no=1, status="All", page_step=
 
     bot_header = Config.CUSTOM_BOT_HEADER or "𝐌ʀ𝐉ʜᴀᴘʟᴜ 𝐓ᴇʟᴇɢʀᴀᴍ"
     bot_header_link = Config.CUSTOM_BOT_HEADER_LINK or "https://t.me/mrjhaplu"
-    msg += f"<blockquote><b><i><a href='{bot_header_link}'>Powered By {bot_header}</a></i></b>\n\n</blockquote>"
+    msg += f"<blockquote><b><i><a href='{bot_header_link}'>ᴘᴏᴡᴇʀᴇᴅ ʙʏ {bot_header}</a></i></b>\n\n</blockquote>"
 
     tasks = await get_specific_tasks(status, sid if is_user else None)
 
@@ -251,7 +251,7 @@ async def get_readable_message(sid, is_user, page_no=1, status="All", page_step=
             msg += f"\n╰ <b>Sub Name</b> → <i>{task.listener.subname}</i>"
         elapsed = time() - task.listener.message.date.timestamp()
 
-        msg += f"\n<blockquote>╭ <b>Task By {task.listener.message.from_user.mention(style='html')} </b>"
+        msg += f"\n<blockquote>╭ <b>ᴛᴀsᴋ ʙʏ {task.listener.message.from_user.mention(style='html')} </b>"
 
         if (
             tstatus not in [MirrorStatus.STATUS_SEED, MirrorStatus.STATUS_QUEUEUP]
@@ -267,22 +267,22 @@ async def get_readable_message(sid, is_user, page_no=1, status="All", page_step=
                 subsize = ""
                 count = ""
             if task.listener.is_super_chat:
-                msg += f"\n┊ <code>Status   :</code> <b><a href='{task.listener.message.link}'>{tstatus}</a></b>"
+                msg += f"\n┊ <code>sᴛᴀᴛᴜs      :</code> <b><a href='{task.listener.message.link}'>{tstatus}</a></b>"
             else:
-                msg += f"\n┊ <code>Status   :</code> <b>{tstatus}</b>"
-            msg += f"\n┊ <code>Done     :</code> <i>{task.processed_bytes()}{subsize}</i>"
-            msg += f"\n┊ <code>Total    :</code> <i>{task.size()}</i>"
+                msg += f"\n┊ <code>sᴛᴀᴛᴜs      :</code> <b>{tstatus}</b>"
+            msg += f"\n┊ <code>ᴅᴏɴᴇ          :</code> <i>{task.processed_bytes()}{subsize}</i>"
+            msg += f"\n┊ <code>ᴅᴏɴᴇ    :</code> <i>{task.size()}</i>"
             if count:
-                msg += f"\n┊ <code>Count    :</code> <b>{count}</b>"
-            msg += f"\n┊ <code>Speed    :</code> <i>{task.speed()}</i>"
-            msg += f"\n┊ <code>ETA      :</code> <i>{task.eta()}</i>"
-            msg += f"\n┊ <code>Past     :</code> <i>{get_readable_time(elapsed + get_raw_time(task.eta()))} ({get_readable_time(elapsed)})</i>"
+                msg += f"\n┊ <code>ᴄᴏᴜɴᴛ    :</code> <b>{count}</b>"
+            msg += f"\n┊ <code>sᴘᴇᴇᴅ    :</code> <i>{task.speed()}</i>"
+            msg += f"\n┊ <code>ᴇᴛᴀ      :</code> <i>{task.eta()}</i>"
+            msg += f"\n┊ <code>ᴘᴀsᴛ     :</code> <i>{get_readable_time(elapsed + get_raw_time(task.eta()))} ({get_readable_time(elapsed)})</i>"
             if tstatus == MirrorStatus.STATUS_DOWNLOAD and (
                 task.listener.is_torrent or task.listener.is_qbit
             ):
                 try:
-                    msg += f"\n┊ <code>Seeders  :</code> {task.seeders_num()}"
-                    msg += f"\n┊ <code>Leechers :</code> {task.leechers_num()}"
+                    msg += f"\n┊ <code>sᴇᴇᴅᴇʀs  :</code> {task.seeders_num()}"
+                    msg += f"\n┊ <code>ʟᴇᴇᴄʜᴇʀs :</code> {task.leechers_num()}"
                 except Exception:
                     pass
             # TODO: Add Connected Peers
@@ -295,11 +295,11 @@ async def get_readable_message(sid, is_user, page_no=1, status="All", page_step=
             msg += f"\n┊ <code>ETA      :</code> <i>{task.seeding_time()}</i>"
             msg += f"\n┊ <code>Past     :</code> <i>{get_readable_time(elapsed)}</i>"
         else:
-            msg += f"\n┊ <code>Size     :</code> <i>{task.size()}</i>"
-        msg += f"\n┊ <code>Engine   :</code> <i>{task.engine}</i>"
-        msg += f"\n╰ <code>Mode     :</code> <i>{task.listener.mode[1]}</i></blockquote>"
+            msg += f"\n┊ <code>sɪᴢᴇ     :</code> <i>{task.size()}</i>"
+        msg += f"\n┊ <code>ᴇɴɢɪɴᴇ   :</code> <i>{task.engine}</i>"
+        msg += f"\n╰ <code>ᴍᴏᴅᴇ     :</code> <i>{task.listener.mode[1]}</i></blockquote>"
         # TODO: Add Bt Sel
-        msg += f"\n<blockquote>⋗ <code>Stop :</code> <i>/{BotCommands.CancelTaskCommand[1]}_{task.gid()}</i></blockquote>\n\n"
+        msg += f"\n<blockquote>⋗ <code>sᴛᴏᴘ :</code> <i>/{BotCommands.CancelTaskCommand[1]}_{task.gid()}</i></blockquote>\n\n"
 
     if len(msg) == 0:
         if status == "All":
@@ -324,11 +324,11 @@ async def get_readable_message(sid, is_user, page_no=1, status="All", page_step=
     buttons.data_button("♻️", f"status {sid} ref", position="header")
     button = buttons.build_menu(8)
     msg += "\n"
-    msg += "⌬ <b><i>𝗕𝗢𝗧 𝗦𝗧𝗔𝗧𝗦</i></b>"
-    msg += f"\n<blockquote>╭ <code>CPU  :</code> {cpu_percent()}%"
+    msg += "⌬ <b><i>ʙᴏᴛ sᴛᴀᴛs</i></b>"
+    msg += f"\n<blockquote>╭ <code>ᴄᴘᴜ  :</code> {cpu_percent()}%"
     msg += f"\n┊ <code>RAM  :</code> {virtual_memory().percent}%"
     msg += (
-        f"\n┊ <code>FREE :</code> {get_readable_file_size(disk_usage(DOWNLOAD_DIR).free)}"
+        f"\n┊ <code>ғʀᴇᴇ :</code> {get_readable_file_size(disk_usage(DOWNLOAD_DIR).free)}"
     )
-    msg += f"\n╰ <code>UP   :</code> {get_readable_time(time() - bot_start_time)}</blockquote>"
+    msg += f"\n╰ <code>ᴜᴘ   :</code> {get_readable_time(time() - bot_start_time)}</blockquote>"
     return msg, button
