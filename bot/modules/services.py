@@ -7,12 +7,13 @@ from aiofiles import open as aiopen
 from cloudscraper import create_scraper
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
-from .. import LOGGER, user_data
+from .. import LOGGER, user_data, shortener_dict
 from ..core.config_manager import Config
 from ..core.tg_client import TgClient
-from ..helper.ext_utils.bot_utils import decode_slink, new_task, update_user_ldata
+from ..helper.ext_utils.bot_utils import decode_slink, new_task, update_user_ldata, encode_slink
 from ..helper.ext_utils.status_utils import get_readable_time
 from ..helper.ext_utils.db_handler import database
+from ..helper.ext_utils.shortener_utils import short_url
 from ..helper.languages import Language
 from ..helper.telegram_helper.bot_commands import BotCommands
 from ..helper.telegram_helper.button_build import ButtonMaker
@@ -43,7 +44,7 @@ async def start(_, message):
             decrypted_url = decrypted_url.replace("file", "")
             chat_id, msg_id = decrypted_url.split("&&")
             LOGGER.info(f"Copying message from {chat_id} & {msg_id} to {userid}")
-            return await TgClient.bot.copy_message(  # TODO: make it function
+            return await TgClient.bot.copy_message(
                 chat_id=userid,
                 from_chat_id=int(chat_id) if match(r"\d+", chat_id) else chat_id,
                 message_id=int(msg_id),
@@ -70,15 +71,40 @@ async def start(_, message):
                     message,
                     "<b>Bot Already Logged In via Password</b>\n\n<i>No Need to Accept Temp Tokens.</i>",
                 )
-            buttons.data_button(
-                "Activate Access Token", f"start pass {input_token}", "header"
-            )
+            
+            # DEBUG: Check shortener configuration
+            LOGGER.info(f"🔍 DEBUG - Shortener dict: {shortener_dict}")
+            LOGGER.info(f"🔍 DEBUG - Shortener dict length: {len(shortener_dict)}")
+            
+            # Create encrypted URL for verification
+            encrypt_url = encode_slink(f"{input_token}&&{userid}")
+            original_url = f"https://t.me/{TgClient.BNAME}?start={encrypt_url}"
+            
+            LOGGER.info(f"🔍 DEBUG - Original URL: {original_url}")
+            LOGGER.info(f"🔍 DEBUG - Encrypted token: {encrypt_url}")
+            
+            # Generate shortened verification link
+            verification_link = await short_url(original_url)
+            
+            LOGGER.info(f"🔍 DEBUG - Shortened URL: {verification_link}")
+            LOGGER.info(f"🔍 DEBUG - URL changed: {verification_link != original_url}")
+            
+            # Add verification button with shortened URL
+            buttons.url_button("🔗 Verify Access Token", verification_link, "header")
             reply_markup = buttons.build_menu(2)
+            
             msg = f"""⌬ Access Login Token : 
     ╭ <b>Status</b> → <code>Generated Successfully</code>
-    ┊ <b>Access Token</b> → <code>{input_token}</code>
+    ┊ <b>Verification Link</b> → <code>{verification_link}</code>
+    ┊ <b>Shortener Status</b> → <code>{'✅ Active' if shortener_dict else '❌ Not Configured'}</code>
+    ┊ <b>Available Shorteners</b> → <code>{len(shortener_dict)}</code>
     |
-    ╰ <b>Validity:</b> {get_readable_time(int(Config.VERIFY_TIMEOUT))}"""
+    ╰ <b>Validity:</b> {get_readable_time(int(Config.VERIFY_TIMEOUT))}
+    
+<i>Click the verification button below to activate your access token.</i>
+
+<b>🔍 Debug Info:</b>
+<code>Shorteners: {list(shortener_dict.keys()) if shortener_dict else 'None'}</code>"""
             return await send_message(message, msg, reply_markup)
 
     if await CustomFilters.authorized(_, message):
