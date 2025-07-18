@@ -7,13 +7,12 @@ from aiofiles import open as aiopen
 from cloudscraper import create_scraper
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
-from .. import LOGGER, user_data, shortener_dict
+from .. import LOGGER, user_data
 from ..core.config_manager import Config
 from ..core.tg_client import TgClient
 from ..helper.ext_utils.bot_utils import decode_slink, new_task, update_user_ldata, encode_slink
 from ..helper.ext_utils.status_utils import get_readable_time
 from ..helper.ext_utils.db_handler import database
-from ..helper.ext_utils.shortener_utils import short_url
 from ..helper.languages import Language
 from ..helper.telegram_helper.bot_commands import BotCommands
 from ..helper.telegram_helper.button_build import ButtonMaker
@@ -25,6 +24,7 @@ from ..helper.telegram_helper.message_utils import (
     send_file,
     send_message,
 )
+from ..helper.ext_utils.shortener_utils import short_url
 
 
 @new_task
@@ -40,6 +40,7 @@ async def start(_, message):
         await delete_message(message)
     elif len(message.command) > 1 and message.command[1] != "start":
         decrypted_url = decode_slink(message.command[1])
+        
         if Config.MEDIA_STORE and decrypted_url.startswith("file"):
             decrypted_url = decrypted_url.replace("file", "")
             chat_id, msg_id = decrypted_url.split("&&")
@@ -51,65 +52,71 @@ async def start(_, message):
                 disable_notification=True,
             )
         elif Config.VERIFY_TIMEOUT:
-            input_token, pre_uid = decrypted_url.split("&&")
-            if int(pre_uid) != userid:
+            try:
+                input_token, pre_uid = decrypted_url.split("&&")
+                
+                # Check if token belongs to this user
+                if int(pre_uid) != userid:
+                    return await send_message(
+                        message,
+                        "<b>❌ Access Token is not yours!</b>\n\n<i>Kindly generate your own to use.</i>",
+                    )
+                
+                # Get user data
+                data = user_data.get(userid, {})
+                
+                # Check if token exists and matches
+                if "VERIFY_TOKEN" not in data or data["VERIFY_TOKEN"] != input_token:
+                    return await send_message(
+                        message,
+                        "<b>❌ Access Token already used or invalid!</b>\n\n<i>Kindly generate a new one.</i>",
+                    )
+                
+                # Check if already logged in with password
+                if (
+                    Config.LOGIN_PASS
+                    and data["VERIFY_TOKEN"].casefold() == Config.LOGIN_PASS.casefold()
+                ):
+                    return await send_message(
+                        message,
+                        "<b>✅ Bot Already Logged In via Password</b>\n\n<i>No Need to Accept Temp Tokens.</i>",
+                    )
+                
+                # ACTIVATE THE TOKEN - This is the verification process
+                LOGGER.info(f"🔐 Activating access token for user {userid}")
+                
+                # Update user data with new token and timestamp
+                update_user_ldata(userid, "VERIFY_TOKEN", str(uuid4()))
+                update_user_ldata(userid, "VERIFY_TIME", time())
+                
+                # Update database if available
+                if Config.DATABASE_URL:
+                    await database.update_user_data(userid)
+                
+                # Send success message
+                success_msg = f"""✅ <b>Access Token Activated Successfully!</b>
+
+┊ <b>User ID:</b> <code>{userid}</code>
+┊ <b>Status:</b> <code>Verified ✓</code>
+┊ <b>Valid Until:</b> <code>{get_readable_time(int(Config.VERIFY_TIMEOUT))}</code>
+
+<i>🎉 You can now use the bot! Start with /help to see available commands.</i>"""
+                
+                return await send_message(message, success_msg, reply_markup)
+                
+            except ValueError:
                 return await send_message(
                     message,
-                    "<b>Access Token is not yours!</b>\n\n<i>Kindly generate your own to use.</i>",
+                    "<b>❌ Invalid verification link!</b>\n\n<i>Please use a valid verification link.</i>",
                 )
-            data = user_data.get(userid, {})
-            if "VERIFY_TOKEN" not in data or data["VERIFY_TOKEN"] != input_token:
+            except Exception as e:
+                LOGGER.error(f"Verification error: {e}")
                 return await send_message(
                     message,
-                    "<b>Access Token already used!</b>\n\n<i>Kindly generate a new one.</i>",
+                    "<b>❌ Verification failed!</b>\n\n<i>Please try again or contact support.</i>",
                 )
-            elif (
-                Config.LOGIN_PASS
-                and data["VERIFY_TOKEN"].casefold() == Config.LOGIN_PASS.casefold()
-            ):
-                return await send_message(
-                    message,
-                    "<b>Bot Already Logged In via Password</b>\n\n<i>No Need to Accept Temp Tokens.</i>",
-                )
-            
-            # DEBUG: Check shortener configuration
-            LOGGER.info(f"🔍 DEBUG - Shortener dict: {shortener_dict}")
-            LOGGER.info(f"🔍 DEBUG - Shortener dict length: {len(shortener_dict)}")
-            
-            # Create encrypted URL for verification
-            encrypt_url = encode_slink(f"{input_token}&&{userid}")
-            original_url = f"https://t.me/{TgClient.BNAME}?start={encrypt_url}"
-            
-            LOGGER.info(f"🔍 DEBUG - Original URL: {original_url}")
-            LOGGER.info(f"🔍 DEBUG - Encrypted token: {encrypt_url}")
-            
-            # Generate shortened verification link
-            verification_link = await short_url(original_url)
 
-            if not verification_link or verification_link == original_url:
-                verification_link = original_url
-            
-            LOGGER.info(f"🔍 DEBUG - Shortened URL: {verification_link}")
-            LOGGER.info(f"🔍 DEBUG - URL changed: {verification_link != original_url}")
-            
-            # Add verification button with shortened URL
-            buttons.url_button("🔗 Verify Access Token", verification_link, "header")
-            reply_markup = buttons.build_menu(2)
-            
-            msg = f"""⌬ Access Login Token : 
-    ╭ <b>Status</b> → <code>Generated Successfully</code>
-    ┊ <b>Verification Link</b> → <code>{verification_link}</code>
-    ┊ <b>Shortener Status</b> → <code>{'✅ Active' if shortener_dict else '❌ Not Configured'}</code>
-    ┊ <b>Available Shorteners</b> → <code>{len(shortener_dict)}</code>
-    |
-    ╰ <b>Validity:</b> {get_readable_time(int(Config.VERIFY_TIMEOUT))}
-    
-<i>Click the verification button below to activate your access token.</i>
-
-<b>🔍 Debug Info:</b>
-<code>Shorteners: {list(shortener_dict.keys()) if shortener_dict else 'None'}</code>"""
-            return await send_message(message, msg, reply_markup)
-
+    # Check if user is authorized
     if await CustomFilters.authorized(_, message):
         start_string = lang.START_MSG.format(
             cmd=BotCommands.HelpCommand[0],
@@ -132,27 +139,9 @@ async def start(_, message):
 
 @new_task
 async def start_cb(_, query):
+    """This callback is now deprecated since we handle verification via start command"""
     user_id = query.from_user.id
-    input_token = query.data.split()[2]
-    data = user_data.get(user_id, {})
-
-    if input_token == "activated":
-        return await query.answer("Already Activated!", show_alert=True)
-    elif "VERIFY_TOKEN" not in data or data["VERIFY_TOKEN"] != input_token:
-        return await query.answer("Already Used, Generate New One", show_alert=True)
-
-    update_user_ldata(user_id, "VERIFY_TOKEN", str(uuid4()))
-    update_user_ldata(user_id, "VERIFY_TIME", time())
-    if Config.DATABASE_URL:
-        await database.update_user_data(user_id)
-    await query.answer("Activated Access Login Token!", show_alert=True)
-
-    kb = query.message.reply_markup.inline_keyboard[1:]
-    kb.insert(
-        0,
-        [InlineKeyboardButton("✅️ Activated", callback_data="start pass activated")],
-    )
-    await edit_reply_markup(query.message, InlineKeyboardMarkup(kb))
+    await query.answer("⚠️ Please use the verification link instead of this button!", show_alert=True)
 
 
 @new_task
