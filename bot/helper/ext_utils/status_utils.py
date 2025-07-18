@@ -299,7 +299,7 @@ async def get_readable_message(sid, is_user, page_no=1, status="All", page_step=
         msg += f"\n┊ ᴇɴɢɪɴᴇ : <i>{task.engine}</i>"
         msg += f"\n╰ ᴍᴏᴅᴇ : <i>{task.listener.mode[1]}</i></blockquote>"
         # TODO: Add Bt Sel
-        msg += f"\n<blockquote>⋗ <code>sᴛᴏᴘ :</code> <i>/{BotCommands.CancelTaskCommand[1]}_{task.gid()}</i></blockquote>\n\n"
+        msg += f"\n<blockquote>⋗ sᴛᴏᴘ : <i>/{BotCommands.CancelTaskCommand[1]}_{task.gid()}</i></blockquote>\n\n"
 
     if len(msg) == 0:
         if status == "All":
@@ -325,10 +325,10 @@ async def get_readable_message(sid, is_user, page_no=1, status="All", page_step=
     button = buttons.build_menu(8)
     msg += "\n"
     msg += "⌬ <b><i>ʙᴏᴛ sᴛᴀᴛs</i></b>"
-    msg += f"\n<blockquote>╭ <code>ᴄᴘᴜ  :</code> {cpu_percent()}%"
-    msg += f"\n┊ <code>RAM  :</code> {virtual_memory().percent}%"
+    msg += f"\n<blockquote>╭ ᴄᴘᴜ : {cpu_percent()}%"
+    msg += f"\n┊ RAM : {virtual_memory().percent}%"
     msg += (
-        f"\n┊ <code>ғʀᴇᴇ :</code> {get_readable_file_size(disk_usage(DOWNLOAD_DIR).free)}"
+        f"\n┊ ғʀᴇᴇ : {get_readable_file_size(disk_usage(DOWNLOAD_DIR).free)}"
     )
-    msg += f"\n╰ <code>ᴜᴘ   :</code> {get_readable_time(time() - bot_start_time)}</blockquote>"
+    msg += f"\n╰ ᴜᴘ : {get_readable_time(time() - bot_start_time)}</blockquote>"
     return msg, button
