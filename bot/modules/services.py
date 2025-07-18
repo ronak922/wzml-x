@@ -75,12 +75,13 @@ async def start(_, message):
             )
             reply_markup = buttons.build_menu(2)
             
-            # CREATE SHORTENED LINK INSTEAD OF SHOWING RAW TOKEN
+            # CREATE SHORTENED LINK - FIXED VERSION
             from ..helper.ext_utils.shortener_utils import short_url
             from ..helper.ext_utils.bot_utils import encode_slink
             
             encrypt_url = encode_slink(f"{input_token}&&{userid}")
-            verification_link = await short_url(f"https://t.me/{TgClient.bot.username}?start={encrypt_url}")
+            # Use TgClient.BNAME instead of TgClient.bot.username
+            verification_link = await short_url(f"https://t.me/{TgClient.BNAME}?start={encrypt_url}")
             
             msg = f"""⌬ Access Login Token : 
     ╭ <b>Status</b> → <code>Generated Successfully</code>
