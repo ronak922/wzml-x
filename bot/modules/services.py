@@ -43,7 +43,7 @@ async def start(_, message):
             decrypted_url = decrypted_url.replace("file", "")
             chat_id, msg_id = decrypted_url.split("&&")
             LOGGER.info(f"Copying message from {chat_id} & {msg_id} to {userid}")
-            return await TgClient.bot.copy_message(
+            return await TgClient.bot.copy_message(  # TODO: make it function
                 chat_id=userid,
                 from_chat_id=int(chat_id) if match(r"\d+", chat_id) else chat_id,
                 message_id=int(msg_id),
@@ -74,22 +74,11 @@ async def start(_, message):
                 "Activate Access Token", f"start pass {input_token}", "header"
             )
             reply_markup = buttons.build_menu(2)
-            
-            # CREATE SHORTENED LINK - FIXED VERSION
-            from ..helper.ext_utils.shortener_utils import short_url
-            from ..helper.ext_utils.bot_utils import encode_slink
-            
-            encrypt_url = encode_slink(f"{input_token}&&{userid}")
-            # Use TgClient.BNAME instead of TgClient.bot.username
-            verification_link = await short_url(f"https://t.me/{TgClient.BNAME}?start={encrypt_url}")
-            
             msg = f"""⌬ Access Login Token : 
     ╭ <b>Status</b> → <code>Generated Successfully</code>
-    ┊ <b>Verification Link</b> → <code>{verification_link}</code>
+    ┊ <b>Access Token</b> → <code>{input_token}</code>
     |
-    ╰ <b>Validity:</b> {get_readable_time(int(Config.VERIFY_TIMEOUT))}
-    
-<i>Click the verification link above to activate your access token.</i>"""
+    ╰ <b>Validity:</b> {get_readable_time(int(Config.VERIFY_TIMEOUT))}"""
             return await send_message(message, msg, reply_markup)
 
     if await CustomFilters.authorized(_, message):
