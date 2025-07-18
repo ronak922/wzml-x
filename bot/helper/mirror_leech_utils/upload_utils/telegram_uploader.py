@@ -49,6 +49,14 @@ from ...telegram_helper.message_utils import delete_message
 
 LOGGER = getLogger(__name__)
 
+# Add these new configuration options for upload optimization
+TELEGRAM_UPLOAD_THREADS = 3  # Number of concurrent uploads
+TELEGRAM_UPLOAD_BATCH_SIZE = 5  # Files per batch
+TELEGRAM_PROGRESS_UPDATE_INTERVAL = 1048576  # 1MB progress updates
+TELEGRAM_THUMBNAIL_CACHE_SIZE = 100  # Max cached thumbnails
+CLEAN_LOG_MSG = True  # Clean log messages after upload starts
+
+
 
 class TelegramUploader:
     def __init__(self, listener, path):

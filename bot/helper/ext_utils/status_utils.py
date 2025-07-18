@@ -267,16 +267,16 @@ async def get_readable_message(sid, is_user, page_no=1, status="All", page_step=
                 subsize = ""
                 count = ""
             if task.listener.is_super_chat:
-                msg += f"\n┊ <code>sᴛᴀᴛᴜs      :</code> <b><a href='{task.listener.message.link}'>{tstatus}</a></b>"
+                msg += f"\n┊ sᴛᴀᴛᴜs : <b><a href='{task.listener.message.link}'>{tstatus}</a></b>"
             else:
-                msg += f"\n┊ <code>sᴛᴀᴛᴜs      :</code> <b>{tstatus}</b>"
-            msg += f"\n┊ <code>ᴅᴏɴᴇ          :</code> <i>{task.processed_bytes()}{subsize}</i>"
-            msg += f"\n┊ <code>ᴅᴏɴᴇ    :</code> <i>{task.size()}</i>"
+                msg += f"\n┊ sᴛᴀᴛᴜs : <b>{tstatus}</b>"
+            msg += f"\n┊ ᴅᴏɴᴇ : <i>{task.processed_bytes()}{subsize}</i>"
+            msg += f"\n┊ ᴅᴏɴᴇ : <i>{task.size()}</i>"
             if count:
-                msg += f"\n┊ <code>ᴄᴏᴜɴᴛ    :</code> <b>{count}</b>"
-            msg += f"\n┊ <code>sᴘᴇᴇᴅ    :</code> <i>{task.speed()}</i>"
-            msg += f"\n┊ <code>ᴇᴛᴀ      :</code> <i>{task.eta()}</i>"
-            msg += f"\n┊ <code>ᴘᴀsᴛ     :</code> <i>{get_readable_time(elapsed + get_raw_time(task.eta()))} ({get_readable_time(elapsed)})</i>"
+                msg += f"\n┊ ᴄᴏᴜɴᴛ : <b>{count}</b>"
+            msg += f"\n┊ sᴘᴇᴇᴅ : <i>{task.speed()}</i>"
+            msg += f"\n┊ ᴇᴛᴀ : <i>{task.eta()}</i>"
+            msg += f"\n┊ ᴘᴀsᴛ : <i>{get_readable_time(elapsed + get_raw_time(task.eta()))} ({get_readable_time(elapsed)})</i>"
             if tstatus == MirrorStatus.STATUS_DOWNLOAD and (
                 task.listener.is_torrent or task.listener.is_qbit
             ):
@@ -295,9 +295,9 @@ async def get_readable_message(sid, is_user, page_no=1, status="All", page_step=
             msg += f"\n┊ <code>ETA      :</code> <i>{task.seeding_time()}</i>"
             msg += f"\n┊ <code>Past     :</code> <i>{get_readable_time(elapsed)}</i>"
         else:
-            msg += f"\n┊ <code>sɪᴢᴇ     :</code> <i>{task.size()}</i>"
-        msg += f"\n┊ <code>ᴇɴɢɪɴᴇ   :</code> <i>{task.engine}</i>"
-        msg += f"\n╰ <code>ᴍᴏᴅᴇ     :</code> <i>{task.listener.mode[1]}</i></blockquote>"
+            msg += f"\n┊ sɪᴢᴇ : <i>{task.size()}</i>"
+        msg += f"\n┊ ᴇɴɢɪɴᴇ : <i>{task.engine}</i>"
+        msg += f"\n╰ ᴍᴏᴅᴇ : <i>{task.listener.mode[1]}</i></blockquote>"
         # TODO: Add Bt Sel
         msg += f"\n<blockquote>⋗ <code>sᴛᴏᴘ :</code> <i>/{BotCommands.CancelTaskCommand[1]}_{task.gid()}</i></blockquote>\n\n"
 
