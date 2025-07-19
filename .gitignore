@@ -10,7 +10,7 @@ thumbnails/*
 rclone/*
 tokens/*
 mediainfo/*
-sabnzbd/*
+# sabnzbd/*
 list_drives.txt
 shortener.txt
 cookies.txt
